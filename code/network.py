@@ -74,6 +74,8 @@ class Network(object):
             test_data = list(test_data)
             n_test = len(test_data)
 
+        self.epoch_costs = []
+        self.epoch_accuracies = []
         for j in range(epochs):
             random.shuffle(training_data)
             mini_batches = [
@@ -84,12 +86,10 @@ class Network(object):
             
             # Log the cost function
             cost = self.total_cost(training_data)
-            print(f"Epoch {j}: Cost {cost}")
-
-            if test_data:
-                print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test))
-            else:
-                print("Epoch {} complete".format(j))
+            accuracy = self.evaluate(test_data)
+            self.epoch_costs.append(cost)
+            self.epoch_accuracies.append(accuracy)
+            print(f"Epoch {j}: Cost {cost}, Accuracy {accuracy} / {len(test_data)}")
 
     def update_mini_batch(self, mini_batch, eta):
         """Update the network's weights and biases by applying
