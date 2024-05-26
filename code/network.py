@@ -44,6 +44,18 @@ class Network(object):
             a = sigmoid(np.dot(w, a)+b)
         return a
 
+    def cost_function(self, output_activations, y):
+        """Return the cost associated with an output and desired output."""
+        return np.sum(np.nan_to_num(-y*np.log(output_activations)-(1-y)*np.log(1-output_activations)))
+
+    def total_cost(self, data):
+        """Return the total cost for the data set."""
+        cost = 0.0
+        for x, y in data:
+            a = self.feedforward(x)
+            cost += self.cost_function(a, y)
+        return cost / len(data)
+
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
         """Train the neural network using mini-batch stochastic
@@ -57,7 +69,6 @@ class Network(object):
 
         training_data = list(training_data)
         n = len(training_data)
-        print('len(training_data)',n)
 
         if test_data:
             test_data = list(test_data)
@@ -70,6 +81,11 @@ class Network(object):
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
+            
+            # Log the cost function
+            cost = self.total_cost(training_data)
+            print(f"Epoch {j}: Cost {cost}")
+
             if test_data:
                 print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test))
             else:
@@ -177,12 +193,6 @@ def load_data():
     test_images_path = os.path.abspath(os.path.join(base_path, 't10k-images.idx3-ubyte'))
     test_labels_path = os.path.abspath(os.path.join(base_path, 't10k-labels.idx1-ubyte'))
 
-    # Print the paths to verify
-    print("Train images path:", train_images_path)
-    print("Train labels path:", train_labels_path)
-    print("Test images path:", test_images_path)
-    print("Test labels path:", test_labels_path)
-
     # Read the data
     training_images = read_images(train_images_path)
     training_labels = read_labels(train_labels_path)
@@ -225,13 +235,3 @@ def prepare_data(training_data, validation_data, test_data):
 
     return training_data, validation_data, test_data
 
-# if __name__ == "__main__":
-#     # Load and prepare data
-#     training_data, validation_data, test_data = load_data()
-#     training_data, validation_data, test_data = prepare_data(training_data, validation_data, test_data)
-
-#     # Initialize the network with 784 input neurons, 30 hidden neurons, and 10 output neurons
-#     net = Network([784, 30, 10])
-
-#     # Train the network using stochastic gradient descent
-#     net.SGD(training_data, 30, 10, 3.0, test_data=test_data)
