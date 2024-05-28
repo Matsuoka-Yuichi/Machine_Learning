@@ -4,6 +4,7 @@ import csv
 from itertools import product
 from code.network import Network, load_data, prepare_data
 from code.visualize_images import visualize_all_test_images
+from datetime import datetime
 
 def run_experiment(visualize_training, save_weights, input_neurons, hidden_neurons, output_neurons, epochs, mini_batch_size, learning_rate, results_writer):
     # Load and prepare data
@@ -41,16 +42,16 @@ def run_experiment(visualize_training, save_weights, input_neurons, hidden_neuro
 def main(visualize_training, save_weights):
     # Parameters
     input_neurons = 784
-    hidden_neurons_list = [[30], [30, 30]]
+    hidden_neurons_list = [[100]]
     output_neurons = 10
-    epochs_list = [10, 20]
-    mini_batch_size_list = [10, 20]
-    learning_rate_list = [0.1, 0.3]
+    epochs_list = [3]
+    mini_batch_size_list = [10]
+    learning_rate_list = [0.001]
 
     # Create results folder and file
     results_folder = 'results'
     os.makedirs(results_folder, exist_ok=True)
-    filename = "accumulated_results.csv"
+    filename = f"accumulated_results_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
     filepath = os.path.join(results_folder, filename)
 
     with open(filepath, mode='w', newline='') as file:

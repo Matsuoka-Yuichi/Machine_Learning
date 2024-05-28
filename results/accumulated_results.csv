@@ -1,0 +1,14 @@
+Parameter,Value
+Input Neurons,784
+Hidden Neurons,[100]
+Output Neurons,10
+Epochs,3
+Mini Batch Size,10
+Learning Rate,0.001
+Accuracy,9457 / 10000
+
+Epoch,Cost,Accuracy
+1,0.019725072278027236,9137
+2,0.014304744360772656,9397
+3,0.01294520070175325,9457
+

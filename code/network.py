@@ -34,9 +34,9 @@ class Network(object):
         ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x)
-                        for x, y in zip(sizes[:-1], sizes[1:])]
+        self.biases = [np.random.randn(y, 1)*0.01 for y in sizes[1:]]
+        # self.weights = [np.random.randn(y, x)*0.01 for x, y in zip(sizes[:-1], sizes[1:])] 
+        self.weights = [np.random.randn(y, x) * np.sqrt(2.0/x) for x, y in zip(sizes[:-1], sizes[1:])]  #He initialization
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
@@ -45,8 +45,8 @@ class Network(object):
         return a
 
     def cost_function(self, output_activations, y):
-        """Return the cost associated with an output and desired output."""
-        return np.sum(np.nan_to_num(-y*np.log(output_activations)-(1-y)*np.log(1-output_activations)))
+        """Return the cost associated with an output and desired output using Mean Squared Error."""
+        return np.mean((output_activations - y) ** 2)
 
     def total_cost(self, data):
         """Return the total cost for the data set."""
@@ -106,7 +106,6 @@ class Network(object):
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
-
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
         gradient for the cost function C_x.  ``nabla_b`` and
@@ -116,18 +115,23 @@ class Network(object):
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         # feedforward
         activation = x
-        activations = [x] # list to store all the activations, layer by layer
-        zs = [] # list to store all the z vectors, layer by layer
+        activations = [x]  # list to store all the activations, layer by layer
+        zs = []  # list to store all the z vectors, layer by layer
         for b, w in zip(self.biases, self.weights):
-            z = np.dot(w, activation)+b
+            z = np.dot(w, activation) + b
             zs.append(z)
             activation = sigmoid(z)
             activations.append(activation)
         # backward pass
-        delta = self.cost_derivative(activations[-1], y) * \
-            sigmoid_prime(zs[-1])
+        delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
+
+        # Gradient clipping
+        clip_value = 1.0  # Define the threshold for clipping
+        nabla_b[-1] = np.clip(nabla_b[-1], -clip_value, clip_value)
+        nabla_w[-1] = np.clip(nabla_w[-1], -clip_value, clip_value)
+
         # Note that the variable l in the loop below is used a little
         # differently to the notation in Chapter 2 of the book.  Here,
         # l = 1 means the last layer of neurons, l = 2 is the
@@ -140,6 +144,11 @@ class Network(object):
             delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
+
+            # Apply gradient clipping to each layer
+            nabla_b[-l] = np.clip(nabla_b[-l], -clip_value, clip_value)
+            nabla_w[-l] = np.clip(nabla_w[-l], -clip_value, clip_value)
+
         return (nabla_b, nabla_w)
 
     def evaluate(self, test_data):
@@ -152,8 +161,8 @@ class Network(object):
         return sum(int(x == y) for (x, y) in test_results)
 
     def cost_derivative(self, output_activations, y):
-        """Return the vector of partial derivatives \partial C_x /
-        \partial a for the output activations."""
+        # """Return the vector of partial derivatives \partial C_x /
+        # \partial a for the output activations."""
         return (output_activations-y)
 
 #### Miscellaneous functions
@@ -161,14 +170,11 @@ def sigmoid(z):
     # """The sigmoid function."""
     # return 1.0/(1.0+np.exp(-z))
     """The improved sigmoid"""
-    return np.where(z >= 0, 
-                    1 / (1 + np.exp(-z)), 
-                    np.exp(z) / (1 + np.exp(z)))
+    return np.maximum(0,z)
 
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
-    return sigmoid(z)*(1-sigmoid(z))
-
+    return np.where(z > 0, 1, 0)
 # Additional code to run the neural network for digit recognition
 
 def load_data():
