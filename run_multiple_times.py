@@ -42,11 +42,12 @@ def run_experiment(visualize_training, save_weights, input_neurons, hidden_neuro
 def main(visualize_training, save_weights):
     # Parameters
     input_neurons = 784
-    hidden_neurons_list = [[100]]
+    hidden_neurons_list = [[30],[100],[200],[30,30],[30,30,30],[100,100],[100,100,100]]
     output_neurons = 10
-    epochs_list = [3]
-    mini_batch_size_list = [10]
+    epochs_list = [30]
+    mini_batch_size_list = [10,100]
     learning_rate_list = [0.001]
+
 
     # Create results folder and file
     results_folder = 'results'

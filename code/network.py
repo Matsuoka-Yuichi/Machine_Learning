@@ -36,7 +36,7 @@ class Network(object):
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1)*0.01 for y in sizes[1:]]
         # self.weights = [np.random.randn(y, x)*0.01 for x, y in zip(sizes[:-1], sizes[1:])] 
-        self.weights = [np.random.randn(y, x) * np.sqrt(2.0/x) for x, y in zip(sizes[:-1], sizes[1:])]  #He initialization
+        self.weights = [np.random.randn(y, x)*0.01 for x, y in zip(sizes[:-1], sizes[1:])]  #He initialization
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
